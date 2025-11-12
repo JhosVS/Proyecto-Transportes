@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>Resultados de Búsqueda</h2>
+        
+        <!-- Formulario de búsqueda -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form action="{{ url_for('buscar_viajes') }}" method="POST">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="ciudad_origen" class="form-label">Origen</label>
+                            <select class="form-select" id="ciudad_origen" name="ciudad_origen" required>
+                                <option value="">Seleccionar origen</option>
+                                {% for ciudad in ciudades %}
+                                    <option value="{{ ciudad.nombre }}" 
+                                            {% if ciudad_origen == ciudad.nombre %}selected{% endif %}>
+                                        {{ ciudad.nombre }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="ciudad_destino" class="form-label">Destino</label>
+                            <select class="form-select" id="ciudad_destino" name="ciudad_destino" required>
+                                <option value="">Seleccionar destino</option>
+                                {% for ciudad in ciudades %}
+                                    <option value="{{ ciudad.nombre }}"
+                                            {% if ciudad_destino == ciudad.nombre %}selected{% endif %}>
+                                        {{ ciudad.nombre }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fecha" class="form-label">Fecha</label>
+                            <input type="date" class="form-control" id="fecha" name="fecha" 
+                                   value="{{ fecha }}" required>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary w-100">Buscar Viajes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Resultados -->
+        {% if viajes %}
+            <div class="row">
+                {% for viaje in viajes %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ viaje.Empresa }}</h5>
+                                <p class="card-text">
+                                    <strong>Salida:</strong> {{ viaje.Hora_Salida }}<br>
+                                    <strong>Llegada estimada:</strong> {{ viaje.Hora_Llegada_Estimada }}<br>
+                                    <strong>Duración:</strong> {{ viaje.Duracion }}<br>
+                                    <strong>Servicio:</strong> {{ viaje.TipoServicio }}<br>
+                                    <strong>Asientos:</strong> {{ viaje.Nro_Asientos }} disponibles
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4 class="text-primary">S/ {{ viaje.Precio }}</h4>
+                                    <button class="btn btn-success">Seleccionar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No se encontraron viajes para los criterios seleccionados.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

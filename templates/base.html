@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PascoTransport - Sistema de Gestión</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body onload="document.getElementById('hero-section').scrollIntoView();">
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="logo">PT</div>
+        <div>
+          <h1>Pasco<span style="font-weight:300">Transport</span></h1>
+          <div style="font-size:12px; color:rgba(255,255,255,0.85)">Gestión de Transporte Interprovincial</div>
+        </div>
+      </div>
+
+      <nav class="main-nav" role="navigation">
+        <div class="nav-item">
+          <button onclick="scrollToHero()">Inicio</button>
+        </div>
+
+        <div class="nav-item">
+          <button>
+            Servicios
+            <span class="dropdown-indicator">▼</span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="#" onclick="scrollToHero()">Pasajes</a>
+            <a href="#" onclick="openTracking()">Encomiendas</a>
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <button>
+            Servicios Corporativos
+            <span class="dropdown-indicator">▼</span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="#" onclick="alert('Próximamente: Alquileres Corporativos')">Alquileres Corporativos</a>
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <button onclick="openTracking()">Rastreo de Envíos</button>
+        </div>
+
+        <div class="nav-item">
+          <button onclick="openRanking()">Ranking ⭐</button>
+        </div>
+
+        <a href="#" onclick="openLogin()">
+        <button class="btn" style="background:rgba(255,255,255,0.2); margin-left:10px;">
+            Login
+        </button>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay" onclick="closeAllPanels()"></div>
+
+  <!-- Panel de Rastreo -->
+  <div class="side-panel" id="tracking-panel">
+    <div class="panel-header">
+      <h3>Rastreo de Envíos</h3>
+      <button class="close-panel" onclick="closeTracking()">×</button>
+    </div>
+    <div class="panel-body">
+      <div class="tracking-form">
+        <label style="display:block; margin-bottom:8px; color:#334155; font-weight:600;">Ingrese los datos de rastreo</label>
+        <input type="text" id="tracking-serie" placeholder="Serie" />
+        <input type="text" id="tracking-correlativo" placeholder="Correlativo" />
+        <input type="text" id="tracking-clave" placeholder="Clave Secreta" />
+        <button onclick="searchPackage()">Buscar Encomienda</button>
+      </div>
+
+      <div id="package-result" style="display:none;">
+        <div class="package-status">
+          <div class="status-header">
+            <div class="status-icon">📦</div>
+            <div class="status-info">
+              <h4 id="package-id"></h4>
+              <p id="package-route"></p>
+            </div>
+          </div>
+          <div style="background:var(--bg); padding:12px; border-radius:8px; margin-bottom:20px;">
+            <p style="margin:0; color:var(--muted); font-size:13px;">Estado actual</p>
+            <h3 style="margin:5px 0 0 0; color:var(--primary);" id="current-status"></h3>
+          </div>
+          <div class="timeline" id="timeline"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel de Ranking -->
+  <div class="side-panel wide" id="ranking-panel">
+    <div class="panel-header">
+      <h3>Empresas Destacadas</h3>
+      <button class="close-panel" onclick="closeRanking()">×</button>
+    </div>
+    <div class="panel-body">
+      <div class="featured-header">
+        <h2>Empresas Destacadas</h2>
+        <p>Las mejores empresas de transporte calificadas por usuarios</p>
+      </div>
+      <div class="companies-grid" id="featured-companies"></div>
+      <button class="view-all-btn" onclick="alert('Ver todas las empresas')">Ver Todas las Empresas</button>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <main role="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero" id="hero-section">
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1>Tu viaje comienza aquí</h1>
+      <p>Compra pasajes, envía encomiendas y alquila vehículos</p>
+      <div class="promo-banner">
+        <h3>20%</h3>
+        <p>con cupón web usando tus tarjetas</p>
+        <div class="bank-logos">
+          <span class="bank-logo">BBVA</span>
+          <span class="bank-logo">Interbank</span>
+          <span class="bank-logo">BCP</span>
+          <span class="bank-logo">BN</span>
+        </div>
+      </div>
+    </div>
+    <div class="search-box">
+      <h3>Compra tu pasaje:</h3>
+      <form class="search-form" action="/buscar-viajes" method="POST">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Origen:</label>
+            <select name="ciudad_origen" class="input" required>
+              <option value="">Seleccionar origen</option>
+              {% for ciudad in ciudades %}
+                <option value="{{ ciudad.nombre }}" {% if ciudad.nombre == 'LIMA' %}selected{% endif %}>{{ ciudad.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Destino:</label>
+            <select name="ciudad_destino" class="input" required>
+              <option value="">Seleccionar destino</option>
+              {% for ciudad in ciudades %}
+                <option value="{{ ciudad.nombre }}">{{ ciudad.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fecha salida:</label>
+            <input type="date" name="fecha" class="input" required value="{{ tomorrow }}" />
+          </div>
+          <div class="form-group">
+            <label>N° pasajeros:</label>
+            <input type="number" class="input" value="1" min="1" />
+          </div>
+        </div>
+        <button type="submit" class="btn primary btn-search">BUSCAR</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero" id="hero-section" style="min-height: 40vh; padding: 20px;">
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1>Resultados de Búsqueda</h1>
+      <p>{{ ciudad_origen }} → {{ ciudad_destino }} - {{ fecha }}</p>
+    </div>
+  </div>
+</section>
+
+<section id="progress-section" class="container" style="margin-top:20px;">
+  <div class="card">
+    <div class="progress" id="progress-bar">
+      <div class="step done">1<br><small>Búsqueda</small></div>
+      <div class="step active">2<br><small>Resultados</small></div>
+      <div class="step" data-step="3">3<br><small>Asientos</small></div>
+      <div class="step" data-step="4">4<br><small>Confirmación</small></div>
+    </div>
+  </div>
+</section>
+
+<section id="results-section" class="container" style="margin-top:20px;">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <button id="back-to-search" class="btn ghost" onclick="backToSearch()">← Volver a búsqueda</button>
+      <div class="filters">
+        <select id="sort-by" class="input" style="padding:10px;" onchange="filterResults()">
+          <option value="price">Mejor precio</option>
+          <option value="rating">Mayor valoración</option>
+        </select>
+        <input id="price-range" type="range" min="30" max="150" value="150" style="vertical-align:middle;" oninput="updatePriceFilter()">
+        <span id="price-label" class="muted">Máx: S/150</span>
+      </div>
+    </div>
+    <div id="results-list" class="result-list" style="margin-top:20px;">
+      {% if viajes %}
+        {% for viaje in viajes %}
+        <div class="result-item">
+          <div>
+            <h4>{{ viaje.Empresa }} - {{ ciudad_origen }} → {{ ciudad_destino }}</h4>
+            <p class="muted">{{ viaje.Hora_Salida }} - {{ viaje.Hora_Llegada_Estimada }} ({{ viaje.Nro_Asientos }} asientos disp.)</p>
+            <p class="muted">Servicio: {{ viaje.TipoServicio }} • Duración: {{ viaje.Duracion }}</p>
+          </div>
+          <div style="text-align:right;">
+            <span class="price">S/{{ "%.2f"|format(viaje.Precio) }}</span>
+            <button class="btn primary" style="margin-top:5px;" onclick="selectTrip('{{ viaje.Empresa }}', '{{ ciudad_origen }} → {{ ciudad_destino }}', {{ viaje.Precio }}, {{ viaje.Id_Viaje }})">Seleccionar</button>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align: center; padding: 40px;">
+          <h3>No se encontraron viajes</h3>
+          <p class="muted">No hay viajes disponibles para los criterios seleccionados.</p>
+          <button class="btn primary" onclick="backToSearch()">Buscar Nuevamente</button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section id="checkout-section" class="container" style="display:none; margin-top:20px;">
+  <!-- Contenido del checkout (igual que en tu HTML) -->
+</section>
+
+<section id="confirmation-section" class="container" style="display:none; margin-top:20px;">
+  <!-- Contenido de confirmación (igual que en tu HTML) -->
+</section>
+{% endblock %}
