@@ -19,17 +19,18 @@
 
       <nav class="main-nav" role="navigation">
         <div class="nav-item">
-          <button onclick="scrollToHero()">Inicio</button>
+            <a href="{{ url_for('index') }}" style="background: transparent; color: #fff; border: none; padding: 12px 16px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; font-size: 14px; display: flex; align-items: center; gap: 6px; text-decoration: none;">
+                Inicio
+            </a>
         </div>
-
         <div class="nav-item">
           <button>
             Servicios
             <span class="dropdown-indicator">▼</span>
           </button>
           <div class="dropdown-menu">
-            <a href="#" onclick="scrollToHero()">Pasajes</a>
-            <a href="#" onclick="openTracking()">Encomiendas</a>
+            <a href="/servicios">Todos los Servicios</a>
+            <a href="#" onclick="openBusquedaRapida()">Búsqueda Rápida de Pasajes</a>
           </div>
         </div>
 
@@ -224,6 +225,60 @@
       </div>
     </div>
   </div>
+
+  <!-- Panel de Búsqueda Rápida de Pasajes -->
+<div class="side-panel" id="busqueda-rapida-panel">
+    <div class="panel-header">
+        <h3>🚌 Búsqueda Rápida de Pasajes</h3>
+        <button class="close-panel" onclick="closeBusquedaRapida()">×</button>
+    </div>
+    <div class="panel-body">
+        <div class="search-form-panel">
+            <form id="busquedaRapidaForm" action="/buscar-viajes" method="POST">
+                <div class="form-group">
+                    <label for="rapida-origen">Origen:</label>
+                    <select id="rapida-origen" name="ciudad_origen" class="input" required>
+                        <option value="">Seleccionar origen</option>
+                        {% for ciudad in ciudades %}
+                            <option value="{{ ciudad.nombre }}">{{ ciudad.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="rapida-destino">Destino:</label>
+                    <select id="rapida-destino" name="ciudad_destino" class="input" required>
+                        <option value="">Seleccionar destino</option>
+                        {% for ciudad in ciudades %}
+                            <option value="{{ ciudad.nombre }}">{{ ciudad.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="rapida-fecha">Fecha de viaje:</label>
+                    <input type="date" id="rapida-fecha" name="fecha" class="input" value="{{ tomorrow }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="rapida-pasajeros">N° de pasajeros:</label>
+                    <input type="number" id="rapida-pasajeros" class="input" value="1" min="1" max="10">
+                </div>
+
+                <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, var(--accent), var(--primary));">
+                    🔍 Buscar Viajes
+                </button>
+            </form>
+
+            <div style="margin-top: 20px; padding: 15px; background: var(--bg); border-radius: 8px;">
+                <h4 style="color: var(--primary); margin-bottom: 10px;">💡 Búsqueda Inteligente</h4>
+                <p style="color: var(--muted); font-size: 13px; margin: 0;">
+                    Encuentra los mejores precios y horarios entre más de 20 empresas de transporte.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 
   <!-- Los otros paneles (tracking, ranking) se mantienen igual -->
   <div class="side-panel" id="tracking-panel">

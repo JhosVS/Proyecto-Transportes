@@ -155,3 +155,17 @@ def init_routes(app):
     @app.errorhandler(500)
     def internal_error(error):
         return render_template('500.html'), 500
+
+    @app.route('/servicios')
+    def servicios():
+        """Página de servicios"""
+        try:
+            ciudades = Viaje.obtener_ciudades()
+            
+            # Configurar fecha por defecto (mañana)
+            tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+            
+            return render_template('servicios.html', ciudades=ciudades, tomorrow=tomorrow)
+        except Exception as e:
+            print(f"❌ Error en página de servicios: {e}")
+            return render_template('servicios.html', ciudades=[], tomorrow='')

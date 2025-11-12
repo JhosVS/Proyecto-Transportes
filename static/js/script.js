@@ -523,3 +523,60 @@ function closeAllPanels() {
   closeLogin();
   if (overlay) overlay.classList.remove('active');
 }
+
+// ========== BÚSQUEDA RÁPIDA DE PASAJES ==========
+function openBusquedaRapida() {
+    closeAllPanels();
+    openPanel($('busqueda-rapida-panel'));
+    
+    // Configurar fecha mínima (hoy)
+    const today = new Date().toISOString().split('T')[0];
+    const fechaInput = document.getElementById('rapida-fecha');
+    if (fechaInput) {
+        fechaInput.min = today;
+    }
+    
+    // Limpiar formulario
+    document.getElementById('busquedaRapidaForm').reset();
+    
+    // Establecer fecha por defecto (mañana)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('rapida-fecha').value = tomorrow.toISOString().split('T')[0];
+}
+
+function closeBusquedaRapida() {
+    closePanel($('busqueda-rapida-panel'));
+}
+
+// Manejar el formulario de búsqueda rápida
+document.addEventListener('DOMContentLoaded', function() {
+    const busquedaRapidaForm = document.getElementById('busquedaRapidaForm');
+    if (busquedaRapidaForm) {
+        busquedaRapidaForm.addEventListener('submit', function(e) {
+            const origen = document.getElementById('rapida-origen').value;
+            const destino = document.getElementById('rapida-destino').value;
+            
+            if (!origen || !destino) {
+                e.preventDefault();
+                alert('Por favor, selecciona origen y destino.');
+                return;
+            }
+            
+            // Cerrar el panel mientras se procesa la búsqueda
+            closeBusquedaRapida();
+            
+            // Mostrar mensaje de carga
+            console.log(`🔍 Buscando viajes: ${origen} → ${destino}`);
+        });
+    }
+});
+
+// Actualizar la función closeAllPanels para incluir búsqueda rápida
+function closeAllPanels() {
+    closeTracking();
+    closeRanking();
+    closeLogin();
+    closeBusquedaRapida();
+    if (overlay) overlay.classList.remove('active');
+}

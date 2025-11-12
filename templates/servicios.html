@@ -1,0 +1,506 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero" id="hero-section" style="min-height: 40vh; padding: 20px;">
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1>Nuestros Servicios</h1>
+      <p>Transporte confiable para personas y encomiendas</p>
+    </div>
+  </div>
+</section>
+
+<div class="container" style="margin-top: 40px;">
+  <!-- Pestañas de Servicios -->
+  <div class="card">
+    <div class="tabs" style="margin-bottom: 0;">
+      <div class="tab active" onclick="switchServiceTab('pasajes')">🚌 Pasajes</div>
+      <div class="tab" onclick="switchServiceTab('encomiendas')">📦 Encomiendas</div>
+      <div class="tab" onclick="switchServiceTab('corporativos')">🏢 Servicios Corporativos</div>
+    </div>
+  </div>
+
+  <!-- Contenido de Pasajes -->
+  <div class="service-content active" id="pasajes-content">
+    <div class="card">
+      <h2 style="color: var(--primary); margin-bottom: 20px;">Compra de Pasajes</h2>
+      <p class="muted" style="margin-bottom: 30px;">Encuentra y reserva tu viaje de manera rápida y segura</p>
+      
+      <div class="search-box" style="max-width: 800px; margin: 0 auto;">
+        <form id="buscarPasajesForm" action="/buscar-viajes" method="POST">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="servicio-origen">Origen:</label>
+              <select id="servicio-origen" name="ciudad_origen" class="input" required>
+                <option value="">Seleccionar origen</option>
+                {% for ciudad in ciudades %}
+                  <option value="{{ ciudad.nombre }}">{{ ciudad.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="servicio-destino">Destino:</label>
+              <select id="servicio-destino" name="ciudad_destino" class="input" required>
+                <option value="">Seleccionar destino</option>
+                {% for ciudad in ciudades %}
+                  <option value="{{ ciudad.nombre }}">{{ ciudad.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="servicio-fecha">Fecha de viaje:</label>
+              <input type="date" id="servicio-fecha" name="fecha" class="input" value="{{ tomorrow }}" required>
+            </div>
+            <div class="form-group">
+              <label for="servicio-pasajeros">N° de pasajeros:</label>
+              <input type="number" id="servicio-pasajeros" class="input" value="1" min="1" max="10">
+            </div>
+          </div>
+          
+          <button type="submit" class="btn primary btn-search">
+            🔍 Buscar Viajes Disponibles
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Información adicional sobre pasajes -->
+    <div class="card" style="margin-top: 30px;">
+      <h3 style="color: var(--primary); margin-bottom: 20px;">Beneficios de viajar con nosotros</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <div class="benefit-card">
+          <div style="font-size: 2.5rem; margin-bottom: 10px;">🛡️</div>
+          <h4>Seguridad Garantizada</h4>
+          <p class="muted">Todos nuestros buses cumplen con los más altos estándares de seguridad y mantenimiento.</p>
+        </div>
+        <div class="benefit-card">
+          <div style="font-size: 2.5rem; margin-bottom: 10px;">💺</div>
+          <h4>Asientos Cómodos</h4>
+          <p class="muted">Asientos reclinables con espacio amplio para mayor comodidad en tu viaje.</p>
+        </div>
+        <div class="benefit-card">
+          <div style="font-size: 2.5rem; margin-bottom: 10px;">🎫</div>
+          <h4>Reserva Instantánea</h4>
+          <p class="muted">Recibe tu boleto electrónico al instante en tu correo y teléfono.</p>
+        </div>
+        <div class="benefit-card">
+          <div style="font-size: 2.5rem; margin-bottom: 10px;">🔄</div>
+          <h4>Flexibilidad</h4>
+          <p class="muted">Cambia o cancela tu pasaje hasta 4 horas antes de la salida.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido de Encomiendas -->
+  <div class="service-content" id="encomiendas-content">
+    <div class="card">
+      <h2 style="color: var(--primary); margin-bottom: 20px;">Servicio de Encomiendas</h2>
+      <p class="muted" style="margin-bottom: 30px;">Envía y recibe paquetes de forma rápida y segura</p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <!-- Formulario de envío -->
+        <div>
+          <h3 style="color: var(--accent); margin-bottom: 20px;">📤 Realizar Envío</h3>
+          <form id="envioEncomiendaForm">
+            <div class="form-group">
+              <label for="envio-origen">Origen:</label>
+              <select id="envio-origen" class="input" required>
+                <option value="">Seleccionar origen</option>
+                {% for ciudad in ciudades %}
+                  <option value="{{ ciudad.nombre }}">{{ ciudad.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="envio-destino">Destino:</label>
+              <select id="envio-destino" class="input" required>
+                <option value="">Seleccionar destino</option>
+                {% for ciudad in ciudades %}
+                  <option value="{{ ciudad.nombre }}">{{ ciudad.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="envio-descripcion">Descripción del paquete:</label>
+              <textarea id="envio-descripcion" class="input" rows="3" placeholder="Describa el contenido del paquete..." required></textarea>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="envio-peso">Peso (kg):</label>
+                <input type="number" id="envio-peso" class="input" step="0.1" min="0.1" max="50" required>
+              </div>
+              <div class="form-group">
+                <label for="envio-tamano">Tamaño:</label>
+                <select id="envio-tamano" class="input" required>
+                  <option value="">Seleccionar</option>
+                  <option value="Pequeño">Pequeño</option>
+                  <option value="Mediano">Mediano</option>
+                  <option value="Grande">Grande</option>
+                  <option value="Extra grande">Extra grande</option>
+                </select>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn primary" style="width: 100%;">
+              📦 Cotizar y Enviar
+            </button>
+          </form>
+        </div>
+        
+        <!-- Información de rastreo -->
+        <div>
+          <h3 style="color: var(--success); margin-bottom: 20px;">📋 Rastrear Envío</h3>
+          <div class="tracking-form" style="background: var(--bg); padding: 20px; border-radius: 10px;">
+            <p class="muted" style="margin-bottom: 15px;">Ingresa los datos de tu envío para rastrearlo:</p>
+            
+            <div class="form-group">
+              <input type="text" id="rastreo-serie" class="input" placeholder="Serie (ej: 001)">
+            </div>
+            
+            <div class="form-group">
+              <input type="text" id="rastreo-correlativo" class="input" placeholder="Correlativo (ej: 12345)">
+            </div>
+            
+            <div class="form-group">
+              <input type="text" id="rastreo-clave" class="input" placeholder="Clave secreta">
+            </div>
+            
+            <button type="button" class="btn primary" style="width: 100%;" onclick="rastrearDesdeServicios()">
+              🔍 Rastrear Encomienda
+            </button>
+          </div>
+          
+          <!-- Información de tarifas -->
+          <div style="margin-top: 25px; padding: 20px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border-radius: 10px;">
+            <h4 style="margin-bottom: 15px;">💰 Tarifas desde</h4>
+            <div style="font-size: 2rem; font-weight: 800;">S/ 15.00</div>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Por paquete pequeño entre ciudades principales</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Características del servicio de encomiendas -->
+    <div class="card" style="margin-top: 30px;">
+      <h3 style="color: var(--primary); margin-bottom: 20px;">¿Por qué elegir nuestro servicio de encomiendas?</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 10px;">🚚</div>
+          <h5>Entrega Rápida</h5>
+          <p class="muted" style="font-size: 0.9rem;">Mismo día entre ciudades principales</p>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 10px;">📱</div>
+          <h5>Seguimiento en Tiempo Real</h5>
+          <p class="muted" style="font-size: 0.9rem;">Monitorea tu paquete en todo momento</p>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 10px;">🛡️</div>
+          <h5>Seguro Incluido</h5>
+          <p class="muted" style="font-size: 0.9rem;">Protección para tus envíos más valiosos</p>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 10px;">🏪</div>
+          <h5>Amplia Cobertura</h5>
+          <p class="muted" style="font-size: 0.9rem;">Llegamos a más de 50 destinos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido de Servicios Corporativos -->
+  <div class="service-content" id="corporativos-content">
+    <div class="card">
+      <h2 style="color: var(--primary); margin-bottom: 20px;">Servicios Corporativos</h2>
+      <p class="muted" style="margin-bottom: 30px;">Soluciones de transporte para empresas e instituciones</p>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 40px;">
+        <div class="service-card">
+          <div style="font-size: 3rem; margin-bottom: 15px;">🚌</div>
+          <h3>Alquiler de Buses</h3>
+          <p class="muted">Flota completa de buses para eventos corporativos, traslados de personal y viajes institucionales.</p>
+          <ul style="margin: 15px 0; padding-left: 20px;">
+            <li>Buses ejecutivos</li>
+            <li>Minibuses</li>
+            <li>Vans corporativas</li>
+            <li>Conductores profesionales</li>
+          </ul>
+          <button class="btn primary" onclick="solicitarCotizacion('alquiler-buses')">
+            Solicitar Cotización
+          </button>
+        </div>
+        
+        <div class="service-card">
+          <div style="font-size: 3rem; margin-bottom: 15px;">📦</div>
+          <h3>Logística Corporativa</h3>
+          <p class="muted">Servicios de mensajería y distribución para empresas con entregas programadas y rastreo avanzado.</p>
+          <ul style="margin: 15px 0; padding-left: 20px;">
+            <li>Entregas programadas</li>
+            <li>Múltiples destinos</li>
+            <li>Reportes detallados</li>
+            <li>Soporte dedicado</li>
+          </ul>
+          <button class="btn primary" onclick="solicitarCotizacion('logistica')">
+            Solicitar Cotización
+          </button>
+        </div>
+        
+        <div class="service-card">
+          <div style="font-size: 3rem; margin-bottom: 15px;">👥</div>
+          <h3>Transporte de Personal</h3>
+          <p class="muted">Rutas corporativas personalizadas para el traslado seguro y puntual de su equipo de trabajo.</p>
+          <ul style="margin: 15px 0; padding-left: 20px;">
+            <li>Rutas personalizadas</li>
+            <li>Horarios flexibles</li>
+            <li>Puntos de recojo</li>
+            <li>Servicio continuo</li>
+          </ul>
+          <button class="btn primary" onclick="solicitarCotizacion('transporte-personal')">
+            Solicitar Cotización
+          </button>
+        </div>
+      </div>
+      
+      <!-- Formulario de contacto corporativo -->
+      <div class="card" style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
+        <h3 style="color: var(--primary); margin-bottom: 20px;">📞 Contáctenos para Servicios Corporativos</h3>
+        <form id="contactoCorporativoForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="empresa-nombre">Nombre de la Empresa:</label>
+              <input type="text" id="empresa-nombre" class="input" required>
+            </div>
+            <div class="form-group">
+              <label for="empresa-ruc">RUC:</label>
+              <input type="text" id="empresa-ruc" class="input" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contacto-nombre">Nombre del Contacto:</label>
+              <input type="text" id="contacto-nombre" class="input" required>
+            </div>
+            <div class="form-group">
+              <label for="contacto-email">Email Corporativo:</label>
+              <input type="email" id="contacto-email" class="input" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="servicio-interes">Servicio de Interés:</label>
+            <select id="servicio-interes" class="input" required>
+              <option value="">Seleccionar servicio</option>
+              <option value="alquiler-buses">Alquiler de Buses</option>
+              <option value="logistica">Logística Corporativa</option>
+              <option value="transporte-personal">Transporte de Personal</option>
+              <option value="multiple">Múltiples Servicios</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="mensaje-corporativo">Mensaje o Requerimientos Específicos:</label>
+            <textarea id="mensaje-corporativo" class="input" rows="4" placeholder="Describa sus necesidades..."></textarea>
+          </div>
+          
+          <button type="submit" class="btn primary">
+            📨 Enviar Solicitud
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.service-content {
+  display: none;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.service-content.active {
+  display: block;
+}
+
+.benefit-card {
+  text-align: center;
+  padding: 20px;
+  border-radius: 10px;
+  background: var(--bg);
+  transition: transform 0.3s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-5px);
+}
+
+.service-card {
+  padding: 25px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.service-card h3 {
+  color: var(--primary);
+  margin-bottom: 15px;
+}
+
+.service-card ul {
+  color: var(--muted);
+}
+
+.service-card ul li {
+  margin-bottom: 8px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .service-content .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  #encomiendas-content > .card > div {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<script>
+// Navegación entre pestañas de servicios
+function switchServiceTab(tabName) {
+  // Ocultar todos los contenidos
+  document.querySelectorAll('.service-content').forEach(content => {
+    content.classList.remove('active');
+  });
+  
+  // Remover active de todas las pestañas
+  document.querySelectorAll('.tabs .tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  // Mostrar contenido seleccionado
+  document.getElementById(`${tabName}-content`).classList.add('active');
+  
+  // Activar pestaña seleccionada
+  event.target.classList.add('active');
+}
+
+// Rastreo desde servicios
+function rastrearDesdeServicios() {
+  const serie = document.getElementById('rastreo-serie').value;
+  const correlativo = document.getElementById('rastreo-correlativo').value;
+  const clave = document.getElementById('rastreo-clave').value;
+  
+  if (!serie || !correlativo || !clave) {
+    alert('Por favor, complete todos los campos para rastrear su envío.');
+    return;
+  }
+  
+  // Llenar el panel de rastreo y abrirlo
+  document.getElementById('tracking-serie').value = serie;
+  document.getElementById('tracking-correlativo').value = correlativo;
+  document.getElementById('tracking-clave').value = clave;
+  
+  // Abrir panel de rastreo
+  openTracking();
+  searchPackage();
+}
+
+// Solicitud de cotización corporativa
+function solicitarCotizacion(servicio) {
+  const servicioNombres = {
+    'alquiler-buses': 'Alquiler de Buses',
+    'logistica': 'Logística Corporativa',
+    'transporte-personal': 'Transporte de Personal'
+  };
+  
+  alert(`📋 Solicitud de cotización para: ${servicioNombres[servicio]}\n\nNos contactaremos con usted dentro de las próximas 24 horas.`);
+  
+  // Cambiar a pestaña de contacto
+  switchServiceTab('corporativos');
+  
+  // Pre-seleccionar el servicio en el formulario
+  document.getElementById('servicio-interes').value = servicio;
+}
+
+// Manejo de formularios
+document.addEventListener('DOMContentLoaded', function() {
+  // Formulario de envío de encomienda
+  const envioForm = document.getElementById('envioEncomiendaForm');
+  if (envioForm) {
+    envioForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const origen = document.getElementById('envio-origen').value;
+      const destino = document.getElementById('envio-destino').value;
+      const descripcion = document.getElementById('envio-descripcion').value;
+      const peso = document.getElementById('envio-peso').value;
+      const tamano = document.getElementById('envio-tamano').value;
+      
+      // Simular cálculo de costo
+      const costos = {
+        'Pequeño': 15,
+        'Mediano': 25,
+        'Grande': 40,
+        'Extra grande': 60
+      };
+      
+      const costoBase = costos[tamano] || 20;
+      const costoTotal = (costoBase * parseFloat(peso)).toFixed(2);
+      
+      alert(`📦 Cotización de Envío\n\nOrigen: ${origen}\nDestino: ${destino}\nPeso: ${peso} kg\nTamaño: ${tamano}\n\n💰 Costo estimado: S/ ${costoTotal}\n\n¿Desea proceder con el envío?`);
+    });
+  }
+  
+  // Formulario de contacto corporativo
+  const contactoForm = document.getElementById('contactoCorporativoForm');
+  if (contactoForm) {
+    contactoForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const empresa = document.getElementById('empresa-nombre').value;
+      const servicio = document.getElementById('servicio-interes').value;
+      
+      alert(`✅ Solicitud enviada correctamente\n\nEmpresa: ${empresa}\n\nNuestro equipo corporativo se contactará con usted dentro de las próximas 24 horas.`);
+      contactoForm.reset();
+    });
+  }
+});
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+  // Configurar fecha mínima (hoy)
+  const today = new Date().toISOString().split('T')[0];
+  const fechaInput = document.getElementById('servicio-fecha');
+  if (fechaInput) {
+    fechaInput.min = today;
+  }
+});
+</script>
+{% endblock %}
