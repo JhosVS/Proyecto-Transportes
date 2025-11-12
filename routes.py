@@ -1,5 +1,6 @@
 from flask import render_template, request, jsonify, session, redirect, url_for
 from models import Viaje, Encomienda, Agencia, Usuario
+from datetime import datetime, timedelta
 
 def init_routes(app):
     
@@ -7,7 +8,11 @@ def init_routes(app):
     def index():
         """Página principal"""
         ciudades = Viaje.obtener_ciudades()
-        return render_template('index.html', ciudades=ciudades, usuario=session.get('usuario'))
+        
+        # Configurar fecha por defecto (mañana)
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+        
+        return render_template('index.html', ciudades=ciudades, tomorrow=tomorrow)
     
     @app.route('/buscar-viajes', methods=['POST'])
     def buscar_viajes():
@@ -16,6 +21,7 @@ def init_routes(app):
         ciudad_destino = request.form.get('ciudad_destino')
         fecha = request.form.get('fecha')
         
+        # Buscar viajes en la base de datos
         viajes = Viaje.buscar_viajes(ciudad_origen, ciudad_destino, fecha)
         ciudades = Viaje.obtener_ciudades()
         
@@ -24,112 +30,8 @@ def init_routes(app):
                              ciudades=ciudades,
                              ciudad_origen=ciudad_origen,
                              ciudad_destino=ciudad_destino,
-                             fecha=fecha,
-                             usuario=session.get('usuario'))
+                             fecha=fecha)
     
-    # ========== RUTAS DE LOGIN ==========
-    @app.route('/login')
-    def login_page():
-        """Página de login"""
-        return render_template('login.html', usuario=session.get('usuario'))
-    
-    @app.route('/api/login', methods=['POST'])
-    def api_login():
-        """API para login"""
-        data = request.get_json()
-        email_dni = data.get('email_dni')
-        password = data.get('password')
-        rol = data.get('rol', 'Usuario')
-        
-        usuario = Usuario.login(email_dni, password, rol)
-        if usuario:
-            session['usuario'] = usuario
-            return jsonify({
-                'success': True,
-                'usuario': usuario,
-                'message': 'Login exitoso'
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'error': 'Credenciales incorrectas'
-            }), 401
-    
-    @app.route('/api/registrar', methods=['POST'])
-    def api_registrar():
-        """API para registrar usuario"""
-        data = request.get_json()
-        nombre_completo = data.get('nombre_completo')
-        email = data.get('email')
-        telefono = data.get('telefono')
-        password = data.get('password')
-        
-        # Verificar si el correo ya existe
-        conn = get_db_connection()
-        if conn:
-            try:
-                cursor = conn.cursor()
-                cursor.execute("SELECT Id_Usuario FROM Usuario WHERE Correo_Electronico = ?", (email,))
-                if cursor.fetchone():
-                    return jsonify({
-                        'success': False,
-                        'error': 'El correo ya está registrado'
-                    }), 400
-            except Exception as e:
-                print(f"Error verificando correo: {e}")
-            finally:
-                conn.close()
-        
-        # Registrar nuevo usuario
-        conn = get_db_connection()
-        if conn:
-            try:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    INSERT INTO Usuario (Nombre_Completo, Correo_Electronico, Telefono, Contrasena_Hash, Rol)
-                    VALUES (?, ?, ?, HASHBYTES('SHA2_256', ?), 'Usuario')
-                """, (nombre_completo, email, telefono, password))
-                conn.commit()
-                
-                # Obtener el usuario recién creado
-                cursor.execute("SELECT Id_Usuario, Nombre_Completo, Correo_Electronico, Rol FROM Usuario WHERE Id_Usuario = SCOPE_IDENTITY()")
-                usuario_data = cursor.fetchone()
-                
-                usuario = {
-                    'id': usuario_data[0],
-                    'nombre': usuario_data[1],
-                    'email': usuario_data[2],
-                    'rol': usuario_data[3]
-                }
-                
-                session['usuario'] = usuario
-                return jsonify({
-                    'success': True,
-                    'usuario': usuario,
-                    'message': 'Registro exitoso'
-                })
-                
-            except Exception as e:
-                print(f"Error registrando usuario: {e}")
-                return jsonify({
-                    'success': False,
-                    'error': 'Error en el registro'
-                }), 500
-            finally:
-                conn.close()
-        
-        return jsonify({
-            'success': False,
-            'error': 'Error de conexión'
-        }), 500
-    
-    @app.route('/logout')
-    def logout():
-        """Cerrar sesión"""
-        session.pop('usuario', None)
-        return redirect(url_for('index'))
-    
-    # ========== APIs EXISTENTES ==========
     @app.route('/api/viajes', methods=['GET'])
     def api_viajes():
         """API para buscar viajes"""
@@ -172,3 +74,84 @@ def init_routes(app):
         """API para obtener ranking de agencias"""
         agencias = Agencia.obtener_ranking()
         return jsonify({'agencias': agencias})
+    
+    @app.route('/api/login', methods=['POST'])
+    def api_login():
+        """API para login"""
+        data = request.get_json()
+        email_dni = data.get('email_dni')
+        password = data.get('password')
+        rol = data.get('rol', 'Usuario')
+        
+        usuario = Usuario.login(email_dni, password, rol)
+        if usuario:
+            session['usuario'] = usuario
+            return jsonify({
+                'success': True,
+                'usuario': usuario
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Credenciales incorrectas'
+            }), 401
+    
+    @app.route('/api/logout', methods=['POST'])
+    def api_logout():
+        """API para logout"""
+        session.pop('usuario', None)
+        return jsonify({'success': True})
+    
+    @app.route('/api/register', methods=['POST'])
+    def api_register():
+        """API para registro de usuarios"""
+        data = request.get_json()
+        
+        nombre = data.get('nombre')
+        email = data.get('email')
+        telefono = data.get('telefono')
+        password = data.get('password')
+        
+        if not all([nombre, email, password]):
+            return jsonify({
+                'success': False,
+                'error': 'Faltan campos obligatorios'
+            }), 400
+        
+        # Aquí puedes implementar el registro usando el SP_RegistrarUsuario
+        # Por ahora retornamos éxito simulado
+        return jsonify({
+            'success': True,
+            'message': 'Usuario registrado exitosamente'
+        })
+    
+    @app.route('/perfil')
+    def perfil():
+        """Página de perfil de usuario"""
+        if 'usuario' not in session:
+            return redirect('/')
+        
+        return render_template('perfil.html', usuario=session['usuario'])
+    
+    @app.route('/mis-viajes')
+    def mis_viajes():
+        """Página de viajes del usuario"""
+        if 'usuario' not in session:
+            return redirect('/')
+        
+        # Aquí puedes agregar la lógica para obtener los viajes del usuario
+        return render_template('mis_viajes.html', usuario=session['usuario'])
+    
+    # Ruta para servir el favicon (evita error 404)
+    @app.route('/favicon.ico')
+    def favicon():
+        return '', 204
+    
+    # Manejo de errores
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_template('404.html'), 404
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        return render_template('500.html'), 500

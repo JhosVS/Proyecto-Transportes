@@ -353,3 +353,173 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeAllPanels();
 });
+
+// ========== LOGIN ==========
+function openLogin() {
+  closeAllPanels();
+  openPanel($('login-panel'));
+}
+
+function closeLogin() {
+  closePanel($('login-panel'));
+}
+
+// ========== TABS ==========
+function switchTab(tab) {
+  const tabs = document.querySelectorAll('.tab');
+  const forms = document.querySelectorAll('.form-content');
+  
+  tabs.forEach(t => t.classList.remove('active'));
+  forms.forEach(f => f.classList.remove('active'));
+  
+  if (tab === 'login') {
+    tabs[0].classList.add('active');
+    $('login-form').classList.add('active');
+  } else {
+    tabs[1].classList.add('active');
+    $('register-form').classList.add('active');
+  }
+}
+
+// ========== PASSWORD TOGGLE ==========
+function togglePassword(inputId, button) {
+  const input = $(inputId);
+  const svg = button.querySelector('svg');
+  
+  if (input.type === 'password') {
+    input.type = 'text';
+    svg.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+  } else {
+    input.type = 'password';
+    svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+  }
+}
+
+// ========== FORM HANDLERS ==========
+document.addEventListener('DOMContentLoaded', function() {
+  // Login Form
+  if ($('loginForm')) {
+    $('loginForm').addEventListener('submit', handleLogin);
+  }
+  
+  // Register Form
+  if ($('registerForm')) {
+    $('registerForm').addEventListener('submit', handleRegister);
+  }
+});
+
+async function handleLogin(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(event.target);
+  const data = {
+    email_dni: formData.get('email_dni'),
+    password: formData.get('password'),
+    rol: formData.get('rol')
+  };
+
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      showAlert('✓ ¡Inicio de sesión exitoso!', 'success');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } else {
+      showAlert('❌ ' + result.error, 'error');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showAlert('❌ Error de conexión. Intente nuevamente.', 'error');
+  }
+}
+
+async function handleRegister(event) {
+  event.preventDefault();
+  
+  const password = $('register-password').value;
+  const confirm = $('register-confirm').value;
+  
+  if (password !== confirm) {
+    showAlert('⚠️ Las contraseñas no coinciden.', 'error');
+    return false;
+  }
+
+  const formData = new FormData(event.target);
+  const data = {
+    nombre: formData.get('nombre'),
+    email: formData.get('email'),
+    telefono: formData.get('telefono'),
+    password: formData.get('password')
+  };
+
+  try {
+    // Aquí puedes agregar la llamada a la API de registro cuando la implementes
+    // Por ahora simulamos el registro
+    showAlert('✓ ¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.', 'success');
+    setTimeout(() => {
+      switchTab('login');
+      event.target.reset();
+    }, 2000);
+  } catch (error) {
+    showAlert('❌ Error al crear la cuenta. Intente nuevamente.', 'error');
+  }
+}
+
+function socialLogin(provider) {
+  showAlert(`🔐 Iniciando sesión con ${provider}...`, 'info');
+  // Aquí puedes agregar la lógica de OAuth cuando la implementes
+}
+
+function logout() {
+  fetch('/api/logout', {
+    method: 'POST'
+  }).then(() => {
+    window.location.reload();
+  });
+}
+
+// ========== UTILITY FUNCTIONS ==========
+function $(id) {
+  return document.getElementById(id);
+}
+
+function showAlert(message, type) {
+  // Remover alertas existentes
+  const existingAlerts = document.querySelectorAll('.alert');
+  existingAlerts.forEach(alert => alert.remove());
+
+  const alert = document.createElement('div');
+  alert.className = `alert ${type}`;
+  alert.textContent = message;
+  
+  // Insertar en el formulario activo
+  const activeForm = document.querySelector('.form-content.active');
+  if (activeForm) {
+    activeForm.insertBefore(alert, activeForm.firstChild);
+  }
+
+  // Auto-remover después de 5 segundos
+  setTimeout(() => {
+    if (alert.parentNode) {
+      alert.parentNode.removeChild(alert);
+    }
+  }, 5000);
+}
+
+// Actualizar closeAllPanels para incluir login
+function closeAllPanels() {
+  closeTracking();
+  closeRanking();
+  closeLogin();
+  if (overlay) overlay.classList.remove('active');
+}

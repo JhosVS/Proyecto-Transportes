@@ -1,10 +1,47 @@
-# Ignorar dependencias
-node_modules/
+# Entornos virtuales
+venv/
+ENV/
+env/
+.venv/
 
-# Ignorar archivos temporales
+# Cachés de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de configuración local
+*.env
+*.ini
+*.cfg
+*.local
+
+# Logs y archivos temporales
 *.log
 *.tmp
+*.swp
 
-# Ignorar configuraciones locales
-.env
+# Archivos de bases de datos locales
+*.sqlite3
+*.db
+
+# Archivos de compilación y distribución
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Archivos de pruebas
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+
+# Archivos de IDEs y editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Archivos del sistema operativo
 .DS_Store
+Thumbs.db
